@@ -5,6 +5,7 @@ import 'package:qarz_daftar/presentation/widgets/components/debtors_list.dart';
 import 'package:qarz_daftar/presentation/widgets/empty.dart';
 import 'package:qarz_daftar/presentation/widgets/loading.dart';
 import '../../../config/themes.dart';
+import '../../../core/models/debtor.dart';
 import '../../widgets/components/add_debt_modal.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,8 +16,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final sumController = TextEditingController();
-  final nameController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -33,10 +32,8 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  // Method to refresh debtors list
   Future<void> _refreshDebtors() async {
     context.read<DebtorBloc>().add(GetDebtorsEvent());
-    // You can return a Future.delayed if you want to ensure a minimum refresh time
     return await Future.delayed(const Duration(milliseconds: 800));
   }
 
@@ -68,93 +65,101 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             const SizedBox(height: 24),
-
-            // Umumiy balans kartasi
             _buildBalanceCard(context),
-
             const SizedBox(height: 24),
-
-            // So'nggi qarzlar ro'yxati
             Text(
               "So'nggi qarzlar",
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 16),
-
             Expanded(
-              child: BlocConsumer<DebtorBloc, DebtorState>(
-                listener: (context, state) {
-                  // TODO: implement listener
-                },
+              child: BlocBuilder<DebtorBloc, DebtorState>(
                 builder: (context, state) {
-                  if (state is DebtorLoading) {
-                    return Loading();
-                  } else if (state is DebtorFailure) {
-                    return Scrollbar(
-                      controller: _scrollController,
-                      thickness: 6,
-                      radius: const Radius.circular(10),
-                      thumbVisibility: true,
-                      child: RefreshIndicator(
-                        onRefresh: _refreshDebtors,
-                        child: ListView(
-                          controller: _scrollController,
-                          children: [
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.4,
-                              child: Empty(),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  } else if (state is DebtorsLoaded) {
-                    return Scrollbar(
-                      controller: _scrollController,
-                      thickness: 6,
-                      radius: const Radius.circular(10),
-                      thumbVisibility: false,
-                      child: RefreshIndicator(
-                        onRefresh: _refreshDebtors,
-                        color: AppTheme.primaryColor,
-                        child: state.debtors.isEmpty
-                            ? ListView(
-                          controller: _scrollController,
-                          children: [
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.4,
-                              child: Empty(),
-                            ),
-                          ],
-                        )
-                            : DebtorsList(
-                          debtor: state.debtors,
-                          scrollController: _scrollController,
-                        ),
-                      ),
-                    );
-                  }
-                  return Scrollbar(
-                    controller: _scrollController,
-                    thickness: 6,
-                    radius: const Radius.circular(10),
-                    thumbVisibility: true,
-                    child: RefreshIndicator(
-                      onRefresh: _refreshDebtors,
-                      child: ListView(
-                        controller: _scrollController,
-                        children: [
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.4,
-                            child: Center(
-                              child: Text("Ma'lumot yuklanmadi"),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
+                  return _buildDebtorList(context, state);
                 },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDebtorList(BuildContext context, DebtorState state) {
+    if (state is DebtorLoading) {
+      return Loading();
+    } else if (state is DebtorFailure) {
+      return _buildErrorView(context);
+    } else if (state is DebtorsLoaded) {
+      return _buildLoadedView(context, state.debtors);
+    } else {
+      return _buildInitialView(context);
+    }
+  }
+
+  Widget _buildErrorView(BuildContext context) {
+    return Scrollbar(
+      controller: _scrollController,
+      thickness: 6,
+      radius: const Radius.circular(10),
+      thumbVisibility: true,
+      child: RefreshIndicator(
+        onRefresh: _refreshDebtors,
+        child: ListView(
+          controller: _scrollController,
+          children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.4,
+              child: Empty(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadedView(BuildContext context, List<Debtor> debtors) {
+    return Scrollbar(
+      controller: _scrollController,
+      thickness: 6,
+      radius: const Radius.circular(10),
+      thumbVisibility: false,
+      child: RefreshIndicator(
+        onRefresh: _refreshDebtors,
+        color: AppTheme.primaryColor,
+        child: debtors.isEmpty
+            ? ListView(
+          controller: _scrollController,
+          children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.4,
+              child: Empty(),
+            ),
+          ],
+        )
+            : DebtorsList(
+          debtor: debtors,
+          scrollController: _scrollController,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInitialView(BuildContext context) {
+    return Scrollbar(
+      controller: _scrollController,
+      thickness: 6,
+      radius: const Radius.circular(10),
+      thumbVisibility: true,
+      child: RefreshIndicator(
+        onRefresh: _refreshDebtors,
+        child: ListView(
+          controller: _scrollController,
+          children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.4,
+              child: Center(
+                child: Text("Ma'lumot yuklanmadi"),
               ),
             ),
           ],

@@ -8,13 +8,9 @@ sealed class DebtorEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class GetDebtorsEvent extends DebtorEvent {
+class GetDebtorsEvent extends DebtorEvent {}
 
-}
-
-class AddTransaction extends DebtorEvent {
-
-}
+class AddTransaction extends DebtorEvent {}
 
 class AddDebtorEvent extends DebtorEvent {
   final String name;

@@ -15,16 +15,25 @@ class DebtorBloc extends Bloc<DebtorEvent, DebtorState> {
     on<GetDebtorsEvent>(getDebtor);
   }
 
-  FutureOr<void> addDebtor (
+  Future<void> addDebtor(
       AddDebtorEvent event,
-      Emitter<DebtorState> emit
+      Emitter<DebtorState> emit,
       ) async {
-    await DebtorFunc(emit: emit).addDebtor(event.name, event.amount, event.isDebt);
+    try {
+      await DebtorFunc(emit: emit).addDebtor(event.name, event.amount, event.isDebt);
+    } catch (e) {
+      emit(DebtorFailure("Debtor qo'shishda xatolik: $e"));
+    }
   }
-  FutureOr<void> getDebtor (
+
+  Future<void> getDebtor(
       GetDebtorsEvent event,
-      Emitter<DebtorState> emit
+      Emitter<DebtorState> emit,
       ) async {
-    await DebtorFunc(emit: emit).getDebtors();
+    try {
+      await DebtorFunc(emit: emit).getDebtors();
+    } catch (e) {
+      emit(DebtorFailure("Debtorlarni olishda xatolik: $e"));
+    }
   }
 }

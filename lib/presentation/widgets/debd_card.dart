@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:qarz_daftar/core/models/debtor.dart';
 import '../../../config/themes.dart';
 
@@ -17,6 +18,11 @@ class DebtCard extends StatefulWidget {
 }
 
 class _DebtCardState extends State<DebtCard> {
+  String formatBalance(double balance) {
+    final formatter = NumberFormat("#,###", "uz_UZ");
+    return formatter.format(balance);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -36,8 +42,8 @@ class _DebtCardState extends State<DebtCard> {
               CircleAvatar(
                 radius: 24,
                 backgroundColor: widget.debtor.isDebt
-                    ? AppTheme.debtColor.withValues(alpha: 0.2)
-                    : AppTheme.creditColor.withValues(alpha: 0.2),
+                    ? AppTheme.debtColor.withOpacity(0.2)
+                    : AppTheme.creditColor.withOpacity(0.2),
                 child: Icon(
                   widget.debtor.isDebt ? Icons.arrow_upward : Icons.arrow_downward,
                   color: widget.debtor.isDebt ? AppTheme.debtColor : AppTheme.creditColor,
@@ -60,20 +66,13 @@ class _DebtCardState extends State<DebtCard> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
-                    // Text(
-                    //   debtor.date,
-                    //   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    //     color: AppTheme.lightTextColor,
-                    //   ),
-                    // ),
                   ],
                 ),
               ),
 
               // Summa qismi
               Text(
-                '${widget.debtor.isDebt ? "-" : "+"} ${widget.debtor}.amount UZS',
+                '${widget.debtor.isDebt ? "-" : "+"} ${formatBalance(widget.debtor.balance)} UZS',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: widget.debtor.isDebt ? AppTheme.debtColor : AppTheme.creditColor,
                   fontWeight: FontWeight.bold,

@@ -13,6 +13,7 @@ class AddDebtModal extends StatefulWidget {
 class _AddDebtModalState extends State<AddDebtModal> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController sumController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -33,96 +34,93 @@ class _AddDebtModalState extends State<AddDebtModal> {
         ),
       ),
       padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Yangi qarz qo'shish",
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 20),
-
-          // Form elementlarini qo'shing
-          TextField(
-            controller: nameController,
-            decoration: const InputDecoration(
-              hintText: "Ism",
-              prefixIcon: Icon(Icons.person_outline),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Yangi qarz qo'shish",
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 20),
 
-          TextField(
-            controller: sumController,
-            decoration: const InputDecoration(
-              hintText: "Summa",
-              prefixIcon: Icon(Icons.attach_money),
+            TextFormField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                hintText: "Ism",
+                prefixIcon: Icon(Icons.person_outline),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return "Iltimos, ismni kiriting";
+                }
+                return null;
+              },
             ),
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    double? amount = double.tryParse(sumController.text);
-                    if (nameController.text.isNotEmpty && amount != null) {
-                      // Add debtor event (Men qarzdorman)
-                      context.read<DebtorBloc>().add(
-                        AddDebtorEvent(nameController.text, amount, true),
-                      );
-                      Navigator.pop(context);
-                      context.read<DebtorBloc>().add(
-                        GetDebtorsEvent()
-                      );
+            TextFormField(
+              controller: sumController,
+              decoration: const InputDecoration(
+                hintText: "Summa",
+                prefixIcon: Icon(Icons.attach_money),
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return "Iltimos, summani kiriting";
+                }
+                if (double.tryParse(value) == null) {
+                  return "Iltimos, to'g'ri summa kiriting";
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
 
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Iltimos, ism va summani kiriting")),
-                      );
-                    }
-                  },
-                  icon: const Icon(Icons.arrow_upward),
-                  label: const Text("Men qarzdorman"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.debtColor,
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      _submitForm(context, isDebt: true);
+                    },
+                    icon: const Icon(Icons.arrow_upward),
+                    label: const Text("Men qarzdorman"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.debtColor,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    double? amount = double.tryParse(sumController.text);
-                    if (nameController.text.isNotEmpty && amount != null) {
-                      // Add debtor event (Menga qarzdor)
-                      context.read<DebtorBloc>().add(
-                        AddDebtorEvent(nameController.text, amount, false),
-                      );
-                      Navigator.pop(context);
-                      context.read<DebtorBloc>().add(
-                          GetDebtorsEvent()
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Iltimos, ism va summani kiriting")),
-                      );
-                    }
-                  },
-                  icon: const Icon(Icons.arrow_downward),
-                  label: const Text("Menga qarzdor"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.creditColor,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      _submitForm(context, isDebt: false);
+                    },
+                    icon: const Icon(Icons.arrow_downward),
+                    label: const Text("Menga qarzdor"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.creditColor,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  void _submitForm(BuildContext context, {required bool isDebt}) {
+    if (_formKey.currentState!.validate()) {
+      final name = nameController.text.trim();
+      final amount = double.parse(sumController.text.trim());
+
+      context.read<DebtorBloc>().add(AddDebtorEvent(name, amount, isDebt));
+      Navigator.pop(context); // Modalni yopamiz
+    }
   }
 }
