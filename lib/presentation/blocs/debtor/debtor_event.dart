@@ -10,7 +10,31 @@ sealed class DebtorEvent extends Equatable {
 
 class GetDebtorsEvent extends DebtorEvent {}
 
-class AddTransaction extends DebtorEvent {}
+class AddTransactionToDebtorEvent extends DebtorEvent {
+  final String debtorId;
+  final double amount;
+  final bool isDebt;
+  final String? description;
+
+  const AddTransactionToDebtorEvent({
+    required this.debtorId,
+    required this.amount,
+    required this.isDebt,
+    this.description
+  });
+
+  @override
+  List<Object> get props => [debtorId, amount, isDebt];
+}
+
+class GetTransactionsForDebtorEvent extends DebtorEvent {
+  final String debtorId;
+
+  const GetTransactionsForDebtorEvent({required this.debtorId});
+
+  @override
+  List<Object> get props => [debtorId];
+}
 
 class AddDebtorEvent extends DebtorEvent {
   final String name;

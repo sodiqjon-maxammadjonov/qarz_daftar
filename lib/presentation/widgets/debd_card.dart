@@ -6,7 +6,6 @@ import '../../../config/themes.dart';
 class DebtCard extends StatefulWidget {
   final Debtor debtor;
   final VoidCallback? onTap;
-
   const DebtCard({
     super.key,
     required this.debtor,

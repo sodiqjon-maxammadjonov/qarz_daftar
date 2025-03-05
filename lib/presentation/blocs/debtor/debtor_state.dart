@@ -23,6 +23,15 @@ class DebtorLoading extends DebtorState {}
 
 class DebtorSuccess extends DebtorState {}
 
+class DebtorTransactionsLoaded extends DebtorState {
+  final List<Transactions> transactions;
+
+  const DebtorTransactionsLoaded({required this.transactions});
+
+  @override
+  List<Object> get props => [transactions];
+}
+
 class DebtorFailure extends DebtorState {
   final String errorMessage;
 
