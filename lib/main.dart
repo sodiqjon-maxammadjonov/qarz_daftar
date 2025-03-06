@@ -17,7 +17,7 @@ void main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => SplashBloc()),
-        BlocProvider(create: (context) => DebtorBloc()..add(GetDebtorsEvent())),
+        BlocProvider(create: (context) => DebtorBloc()),
       ],
       child: const MyApp(),
     ),

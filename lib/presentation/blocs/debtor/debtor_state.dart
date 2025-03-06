@@ -1,7 +1,7 @@
 part of 'debtor_bloc.dart';
 
 @immutable
-sealed class DebtorState extends Equatable {
+abstract class DebtorState extends Equatable {
   const DebtorState();
 
   @override
@@ -10,33 +10,44 @@ sealed class DebtorState extends Equatable {
 
 class DebtorInitial extends DebtorState {}
 
+class DebtorLoading extends DebtorState {}
+
 class DebtorsLoaded extends DebtorState {
   final List<Debtor> debtors;
 
-  const DebtorsLoaded({required this.debtors});
+  const DebtorsLoaded(this.debtors);
 
   @override
   List<Object> get props => [debtors];
 }
 
-class DebtorLoading extends DebtorState {}
+class DebtorLoaded extends DebtorState {
+  final Debtor debtor;
 
-class DebtorSuccess extends DebtorState {}
-
-class DebtorTransactionsLoaded extends DebtorState {
-  final List<Transactions> transactions;
-
-  const DebtorTransactionsLoaded({required this.transactions});
+  const DebtorLoaded(this.debtor);
 
   @override
-  List<Object> get props => [transactions];
+  List<Object> get props => [debtor];
 }
 
-class DebtorFailure extends DebtorState {
-  final String errorMessage;
+class DebtorCreated extends DebtorState {
+  final String id;
 
-  const DebtorFailure(this.errorMessage);
+  const DebtorCreated(this.id);
 
   @override
-  List<Object> get props => [errorMessage];
+  List<Object> get props => [id];
+}
+
+class DebtorUpdated extends DebtorState {}
+
+class DebtorDeleted extends DebtorState {}
+
+class DebtorError extends DebtorState {
+  final String message;
+
+  const DebtorError(this.message);
+
+  @override
+  List<Object> get props => [message];
 }

@@ -1,39 +1,22 @@
 part of 'debtor_bloc.dart';
 
 @immutable
-sealed class DebtorEvent extends Equatable {
+abstract class DebtorEvent extends Equatable {
   const DebtorEvent();
 
   @override
   List<Object> get props => [];
 }
 
-class GetDebtorsEvent extends DebtorEvent {}
+class LoadDebtorsEvent extends DebtorEvent {}
 
-class AddTransactionToDebtorEvent extends DebtorEvent {
-  final String debtorId;
-  final double amount;
-  final bool isDebt;
-  final String? description;
+class LoadDebtorByIdEvent extends DebtorEvent {
+  final String id;
 
-  const AddTransactionToDebtorEvent({
-    required this.debtorId,
-    required this.amount,
-    required this.isDebt,
-    this.description
-  });
+  const LoadDebtorByIdEvent(this.id);
 
   @override
-  List<Object> get props => [debtorId, amount, isDebt];
-}
-
-class GetTransactionsForDebtorEvent extends DebtorEvent {
-  final String debtorId;
-
-  const GetTransactionsForDebtorEvent({required this.debtorId});
-
-  @override
-  List<Object> get props => [debtorId];
+  List<Object> get props => [id];
 }
 
 class AddDebtorEvent extends DebtorEvent {
@@ -41,8 +24,30 @@ class AddDebtorEvent extends DebtorEvent {
   final double amount;
   final bool isDebt;
 
-  const AddDebtorEvent(this.name, this.amount, this.isDebt);
+  const AddDebtorEvent({
+    required this.name,
+    required this.amount,
+    required this.isDebt,
+  });
 
   @override
   List<Object> get props => [name, amount, isDebt];
+}
+
+class UpdateDebtorEvent extends DebtorEvent {
+  final Debtor debtor;
+
+  const UpdateDebtorEvent(this.debtor);
+
+  @override
+  List<Object> get props => [debtor];
+}
+
+class DeleteDebtorEvent extends DebtorEvent {
+  final String id;
+
+  const DeleteDebtorEvent(this.id);
+
+  @override
+  List<Object> get props => [id];
 }

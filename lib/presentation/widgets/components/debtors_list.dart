@@ -1,31 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:qarz_daftar/core/models/debtor.dart';
-import 'package:qarz_daftar/presentation/widgets/debd_card.dart';
-
-import '../../screens/transactions/debtor_transactions_screen.dart';
+import 'package:qarz_daftar/presentation/widgets/components/debtor_card.dart';
 
 class DebtorsList extends StatelessWidget {
-  final List<Debtor> debtor;
-  final ScrollController? scrollController;
-  const DebtorsList({super.key, required this.debtor, this.scrollController});
+  final List<Debtor> debtors;
+
+  const DebtorsList({Key? key, required this.debtors}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      controller: scrollController,
-      itemCount: debtor.length,
+      itemCount: debtors.length,
       itemBuilder: (context, index) {
-        return DebtCard(
-          debtor: debtor[index],
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DebtorTransactionsPage(debtor: debtor[index]),
-              ),
-            );
-          }
-        );
+        final debtor = debtors[index];
+        return DebtorCard(debtor: debtor,onTap: (){},);
       },
     );
   }
