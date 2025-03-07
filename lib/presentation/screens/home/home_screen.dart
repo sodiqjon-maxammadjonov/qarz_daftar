@@ -24,6 +24,10 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future<void> _refreshDebtors() async {
+    context.read<DebtorBloc>().add(LoadDebtorsEvent());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,8 +38,8 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () {
                 _showAddDebtorDialog(context);
               },
-              icon: Icon(CupertinoIcons.add)),
-          const SizedBox(width: 8,)
+              icon: const Icon(CupertinoIcons.add)),
+          const SizedBox(width: 8),
         ],
       ),
       body: Padding(
@@ -49,30 +53,33 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: BlocBuilder<DebtorBloc, DebtorState>(
-                builder: (context, state) {
-                  if (state is DebtorLoading) {
-                    return const Loading();
-                  } else if (state is DebtorsLoaded) {
-                    if (state.debtors.isEmpty) {
-                      return const Empty();
+              child: RefreshIndicator(
+                onRefresh: _refreshDebtors,
+                child: BlocBuilder<DebtorBloc, DebtorState>(
+                  builder: (context, state) {
+                    if (state is DebtorLoading) {
+                      return const Loading();
+                    } else if (state is DebtorsLoaded) {
+                      if (state.debtors.isEmpty) {
+                        return const Empty();
+                      } else {
+                        return DebtorsList(debtors: state.debtors);
+                      }
+                    } else if (state is DebtorError) {
+                      return Center(
+                        child: Text(
+                          "Xatolik: ${state.message}",
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.error),
+                        ),
+                      );
                     } else {
-                      return DebtorsList(debtors: state.debtors);
+                      return const Center(
+                        child: Text("Ma'lumot yo'q"),
+                      );
                     }
-                  } else if (state is DebtorError) {
-                    return Center(
-                      child: Text(
-                        "Xatolik: ${state.message}",
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.error),
-                      ),
-                    );
-                  } else {
-                    return const Center(
-                      child: Text("Ma'lumot yo'q"),
-                    );
-                  }
-                },
+                  },
+                ),
               ),
             ),
           ],
@@ -90,44 +97,39 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
-          // ✅ StatefulBuilder dan foydalanamiz
           builder: (BuildContext context, StateSetter setState) {
-            // ✅ setState funksiyasi
             return AlertDialog(
               title: const Text('Yangi qarz qo\'shish'),
               content: SingleChildScrollView(
-                // ➕ kichik ekranlarda ham muammo bo'lmasligi uchun
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextFormField(
                       decoration: const InputDecoration(
                         labelText: 'Ism',
-                        border: OutlineInputBorder(), // ✅ chiroyli dizayn
+                        border: OutlineInputBorder(),
                       ),
                       onChanged: (value) => name = value,
                     ),
-                    const SizedBox(height: 16), // ➕ orasini ochish
+                    const SizedBox(height: 16),
                     TextFormField(
                       decoration: const InputDecoration(
                         labelText: 'Summa',
-                        border: OutlineInputBorder(), // ✅ chiroyli dizayn
+                        border: OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.number,
                       onChanged: (value) =>
-                          amount = double.tryParse(value) ?? 0.0,
+                      amount = double.tryParse(value) ?? 0.0,
                     ),
-                    const SizedBox(height: 24), // ➕ orasini ochish
+                    const SizedBox(height: 24),
                     Row(
                       children: [
                         const Text('Men Qarzdorman'),
                         const SizedBox(width: 8),
-                        // ➕ checkbox va text orasini ochish
                         Checkbox(
                           value: isDebt,
                           onChanged: (bool? value) {
                             setState(() {
-                              // ✅ setState orqali checkbox holatini yangilaymiz
                               isDebt = value ?? false;
                             });
                           },
@@ -146,10 +148,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: () {
                     if (name.isNotEmpty && amount > 0) {
                       context.read<DebtorBloc>().add(
-                            // ✅ context.read<DebtorBloc>()
-                            AddDebtorEvent(
-                                name: name, amount: amount, isDebt: isDebt),
-                          );
+                        AddDebtorEvent(
+                            name: name, amount: amount, isDebt: isDebt),
+                      );
                       Navigator.pop(context);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(

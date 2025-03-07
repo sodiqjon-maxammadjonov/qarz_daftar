@@ -77,6 +77,7 @@ class DebtorBloc extends Bloc<DebtorEvent, DebtorState> {
     try {
       await _debtorService.updateDebtor(event.debtor);
       emit(DebtorUpdated());
+      add(LoadDebtorsEvent());
     } catch (e) {
       emit(DebtorError(e.toString()));
     }

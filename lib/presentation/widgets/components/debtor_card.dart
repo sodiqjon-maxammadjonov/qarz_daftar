@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:qarz_daftar/core/models/debtor.dart';
 import 'package:qarz_daftar/config/themes.dart';
 import 'package:qarz_daftar/presentation/blocs/debtor/debtor_bloc.dart';
@@ -10,7 +11,10 @@ class DebtorCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   const DebtorCard({super.key, required this.debtor, this.onTap});
-
+  String formatNumber(double number) {
+    final formatter = NumberFormat.currency(locale: 'uz_UZ', symbol: '', decimalDigits: 0);
+    return formatter.format(number);
+  }
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -37,11 +41,11 @@ class DebtorCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: debtor.isDebt ? AppTheme.debtColor : AppTheme.creditColor,
+                  color: Colors.grey.shade400,
                 ),
               ),
               Text(
-                " ${debtor.signedBalance} UZS",
+                " ${formatNumber(debtor.signedBalance)} UZS",
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
