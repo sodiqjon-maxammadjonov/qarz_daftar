@@ -5,10 +5,17 @@ abstract class DebtorEvent extends Equatable {
   const DebtorEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
-class LoadDebtorsEvent extends DebtorEvent {}
+class LoadDebtorsEvent extends DebtorEvent {
+  final String? searchQuery;
+
+  const LoadDebtorsEvent({this.searchQuery});
+
+  @override
+  List<Object?> get props => [searchQuery];
+}
 
 class LoadDebtorByIdEvent extends DebtorEvent {
   final String id;
@@ -24,14 +31,10 @@ class AddDebtorEvent extends DebtorEvent {
   final double amount;
   final bool isDebt;
 
-  const AddDebtorEvent({
-    required this.name,
-    required this.amount,
-    required this.isDebt,
-  });
+  const AddDebtorEvent({required this.name, required this.amount, required this.isDebt});
 
   @override
-  List<Object> get props => [name, amount, isDebt];
+  List<Object?> get props => [name, amount, isDebt];
 }
 
 class UpdateDebtorEvent extends DebtorEvent {

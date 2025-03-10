@@ -6,6 +6,8 @@ import 'package:meta/meta.dart';
 import 'package:qarz_daftar/core/models/debtor.dart';
 import 'package:qarz_daftar/data/services/debtor_service.dart';
 
+import '../../../data/services/transaction_service.dart';
+
 part 'debtor_event.dart';
 part 'debtor_state.dart';
 
@@ -27,7 +29,9 @@ class DebtorBloc extends Bloc<DebtorEvent, DebtorState> {
     emit(DebtorLoading());
 
     try {
-      final debtors = await _debtorService.getAllDebtors();
+      final debtors = await _debtorService.getAllDebtors(
+        searchQuery: event.searchQuery,
+      );
       emit(DebtorsLoaded(debtors));
     } catch (e) {
       emit(DebtorError(e.toString()));
@@ -57,9 +61,18 @@ class DebtorBloc extends Bloc<DebtorEvent, DebtorState> {
     try {
       final debtorId = await _debtorService.addDebtor(
         event.name,
-        event.amount,
         event.isDebt,
       );
+
+      // Tranzaksiyani yaratish
+      final transactionService = TransactionService();
+      await transactionService.addTransaction(
+        debtorId,
+        event.amount,
+        event.isDebt,
+        "Qarzdorlik yaratildi", //Izoh
+      );
+
       emit(DebtorCreated(debtorId));
 
       add(LoadDebtorsEvent());
@@ -92,6 +105,7 @@ class DebtorBloc extends Bloc<DebtorEvent, DebtorState> {
     try {
       await _debtorService.deleteDebtor(event.id);
       emit(DebtorDeleted());
+      add(LoadDebtorsEvent());
     } catch (e) {
       emit(DebtorError(e.toString()));
     }

@@ -21,8 +21,14 @@ class DebtorCard extends StatelessWidget {
   });
 
   String formatNumber(double number) {
-    final formatter = NumberFormat.currency(locale: 'uz_UZ', symbol: '', decimalDigits: 0);
-    return formatter.format(number);
+    final formatter = NumberFormat("#,##0", "uz_UZ");
+    if (number > 0) {
+      return "+${formatter.format(number)}"; // Ijobiy bo'lsa + qo'shamiz
+    } else if (number < 0) {
+      return formatter.format(number); // Manfiy bo'lsa hech narsa qo'shmaymiz (manfiy ishora avtomatik qo'shiladi)
+    } else {
+      return formatter.format(number); // Nolga teng bo'lsa
+    }
   }
 
   @override
@@ -38,13 +44,14 @@ class DebtorCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         child: ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          // Tanlov rejimi uchun leading qismiga checkbox qo'shish
-          leading: isSelectionMode ? Checkbox(
+          leading: isSelectionMode
+              ? Checkbox(
             value: isSelected,
             onChanged: (bool? value) {
               if (onTap != null) onTap!();
             },
-          ) : null,
+          )
+              : null,
           title: Text(
             debtor.name,
             style: Theme.of(context).textTheme.headlineMedium,
@@ -62,7 +69,7 @@ class DebtorCard extends StatelessWidget {
                 ),
               ),
               Text(
-                " ${formatNumber(debtor.signedBalance)} UZS",
+                "${formatNumber(debtor.balance)} UZS", // debtor.balance dan foydalanamiz
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -72,7 +79,7 @@ class DebtorCard extends StatelessWidget {
             ],
           ),
           trailing: isSelectionMode
-              ? null  // Tanlov rejimida trailing qismi ko'rsatilmaydi
+              ? null
               : PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
             onSelected: (String result) {
@@ -117,10 +124,6 @@ class DebtorCard extends StatelessWidget {
 
   void _showDeleteConfirmationDialog(BuildContext context, Debtor debtor) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    // Raqamlarni formatlash uchun NumberFormat
-    final numberFormat = NumberFormat("#,##0", "uz_UZ");
 
     showDialog(
       context: context,
@@ -128,7 +131,6 @@ class DebtorCard extends StatelessWidget {
       builder: (BuildContext context) {
         return LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
-            // Dialog oynasining maksimal kengligi
             final maxWidth = constraints.maxWidth > 600 ? 600.0 : constraints.maxWidth * 0.8;
 
             return AlertDialog(
@@ -144,7 +146,7 @@ class DebtorCard extends StatelessWidget {
                 ],
               ),
               content: SizedBox(
-                width: maxWidth, // Dialog oynasining kengligini cheklash
+                width: maxWidth,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,8 +193,7 @@ class DebtorCard extends StatelessWidget {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                // Raqamni formatlash
-                                '${numberFormat.format(debtor.balance)} so\'m',
+                                '${formatNumber(debtor.balance)} so\'m', // formatNumberni debtor.balanceni берdik
                                 style: theme.textTheme.bodyMedium?.copyWith(
                                   fontWeight: FontWeight.w500,
                                   color: debtor.isDebt ? Colors.red[700] : Colors.green[700],
@@ -255,7 +256,6 @@ class DebtorCard extends StatelessWidget {
                       onPressed: () {
                         Future.microtask(() {
                           context.read<DebtorBloc>().add(DeleteDebtorEvent(debtor.id));
-                          // Muvaffaqiyatli xabarni ko'rsatamiz
                           _showDeleteSuccessSnackBar(context, debtor.name);
                         });
                         Navigator.of(context).pop();
@@ -273,7 +273,6 @@ class DebtorCard extends StatelessWidget {
     );
   }
 
-// SnackBarni ko'rsatish uchun alohida funksiya
   void _showDeleteSuccessSnackBar(BuildContext context, String debtorName) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

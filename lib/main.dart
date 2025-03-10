@@ -5,24 +5,30 @@ import 'package:qarz_daftar/config/constants.dart';
 import 'package:qarz_daftar/config/themes.dart';
 import 'package:qarz_daftar/presentation/blocs/debtor/debtor_bloc.dart';
 import 'package:qarz_daftar/presentation/blocs/splash/splash_bloc.dart';
+import 'package:qarz_daftar/presentation/blocs/transaction/transaction_bloc.dart';
 import 'package:qarz_daftar/presentation/screens/splash/splash_screen.dart';
+
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 🔥 Firebase'ni ishga tushirish
   await Firebase.initializeApp();
+
+  await initializeDateFormatting();
 
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => SplashBloc()),
         BlocProvider(create: (context) => DebtorBloc()),
+        BlocProvider(create: (context) => TransactionBloc()),
       ],
       child: const MyApp(),
     ),
   );
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
