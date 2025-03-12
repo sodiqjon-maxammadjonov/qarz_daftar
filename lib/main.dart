@@ -1,14 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:qarz_daftar/config/constants.dart';
-import 'package:qarz_daftar/config/themes.dart';
-import 'package:qarz_daftar/presentation/blocs/debtor/debtor_bloc.dart';
-import 'package:qarz_daftar/presentation/blocs/splash/splash_bloc.dart';
-import 'package:qarz_daftar/presentation/blocs/transaction/transaction_bloc.dart';
-import 'package:qarz_daftar/presentation/screens/splash/splash_screen.dart';
-
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:qarz_daftar/src/core/constant/constants.dart';
+import 'package:qarz_daftar/src/core/themes/app_theme.dart';
+import 'package:qarz_daftar/src/presentation/bloc/debtor/debtor_bloc.dart';
+import 'package:qarz_daftar/src/presentation/bloc/transaction/transactions_bloc.dart';
+
+import 'package:qarz_daftar/src/presentation/bloc/pin/pin_bloc.dart';
+import 'package:qarz_daftar/src/presentation/screen/home/pin_screen.dart'; // PIN screen import
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,15 +20,14 @@ void main() async {
   runApp(
     MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => SplashBloc()),
         BlocProvider(create: (context) => DebtorBloc()),
-        BlocProvider(create: (context) => TransactionBloc()),
+        BlocProvider(create: (context) => TransactionsBloc()),
+        BlocProvider(create: (context) => PinBloc()),
       ],
       child: const MyApp(),
     ),
   );
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -39,7 +38,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: Constants.appName,
       theme: AppTheme.lightTheme(),
-      home: SplashScreen(),
+      home: PinScreen(),
     );
   }
 }

@@ -1,0 +1,2 @@
+/Users/macbookpro/qarz_daftar/android/app/.cxx/RelWithDebInfo/g4247666/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/macbookpro/qarz_daftar/android/app/.cxx/RelWithDebInfo/g4247666/arm64-v8a/CMakeFiles/rebuild_cache.dir
