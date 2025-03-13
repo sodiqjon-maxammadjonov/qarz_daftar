@@ -24,28 +24,36 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
-      setState(() {});  // BalanceCard yangilanishi uchun
+      setState(() {});
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: _isSearching
             ? TextField(
           controller: _searchController,
           autofocus: true,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             hintText: 'Qidirish...',
             border: InputBorder.none,
+            hintStyle: TextStyle(
+              color: theme.appBarTheme.foregroundColor?.withOpacity(0.7) ?? Colors.black54,
+              fontSize: 16,
+            ),
           ),
           onChanged: (value) {
-            setState(() {
-              context.read<DebtorBloc>().add(LoadDebtorsEvent(name: value));
-            });
+            context.read<DebtorBloc>().add(LoadDebtorsEvent(name: value));
           },
-          style: const TextStyle(color: Colors.white, fontSize: 18),
+          // Matn rangini appbar rangiga moslash uchun
+          style: TextStyle(
+            color: theme.appBarTheme.foregroundColor ?? Colors.black,
+            fontSize: 16,
+          ),
         )
             : Text(Constants.appName),
         actions: [
@@ -56,6 +64,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 _isSearching = !_isSearching;
                 if (!_isSearching) {
                   _searchController.clear();
+                  // Qidiruv tugaganda barcha ma'lumotlarni qayta yuklash
+                  context.read<DebtorBloc>().add(const LoadDebtorsEvent());
                 }
               });
             },
@@ -82,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: [
+              children: const [
                 DebtorsList(),
                 SelectedDebtorsList(),
               ],
@@ -92,16 +102,22 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       ),
     );
   }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _tabController.dispose();
+    super.dispose();
+  }
 }
 
-
-  void showAddDebtorModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => const AddDebtorModal(),
-    );
-  }
+void showAddDebtorModal(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+    ),
+    builder: (context) => const AddDebtorModal(),
+  );
+}

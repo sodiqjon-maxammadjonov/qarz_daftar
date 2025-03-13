@@ -56,16 +56,28 @@ class DebtorService {
       emit(DebtorLoading());
 
       Query query = _debtorCollection.orderBy('created_at', descending: true);
-      if (name != null && name.isNotEmpty) {
-        query = query.where('name', isEqualTo: name);
-      }
 
+      // Ishlatish uchun QuerySnapshot olish
       QuerySnapshot snapshot = await query.get();
 
       List<Debtor> debtors = snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
         return Debtor.fromMap({...data, 'id': doc.id});
       }).toList();
+
+      // Agar ism parametri berilgan bo'lsa, local filtering qilish
+      if (name != null && name.isNotEmpty) {
+        // Kichik harflar bilan solishtirish uchun
+        String searchLower = name.toLowerCase();
+
+        // Filter qilish: debtorning ismi qidirilayotgan ism qismini o'z ichiga olsa
+        debtors = debtors.where((debtor) {
+          return debtor.name.toLowerCase().contains(searchLower);
+        }).toList();
+
+        print('Qidirilayotgan ism: $name');
+        print('Topilgan debtorlar soni: ${debtors.length}');
+      }
 
       emit(DebtorLoaded(debtors));
     } catch (e) {
